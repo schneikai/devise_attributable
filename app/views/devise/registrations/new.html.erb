@@ -6,7 +6,7 @@
   <div><%= f.label :email %><br />
   <%= f.email_field :email, :autofocus => true %></div>
 
-  <% attributables(resource, optional: false).each do |name, options| %>
+  <% attributables(resource, optional: false, with_errors: true).each do |name, options| %>
     <div><%= f.label name %><br />
     <%= f.attributable name %></div>
   <% end %>

@@ -11,20 +11,22 @@ module DeviseAttributable
 
   def self.attributables
     attributables = {}
-    Devise.attributables.each do |part|
-      if part.is_a?(Hash)
-        name = part.keys.first
-        attributables[name] = default_options.deep_merge(part[name])
+    Devise.attributables.each do |name_or_options|
+      if name_or_options.is_a?(Hash)
+        name = name_or_options.keys.first
+        options = name_or_options[name]
       else
-        attributables[part] = default_options_for(part)
+        name = name_or_options
+        options = {}
       end
+      attributables[name] = default_options_for(name).deep_merge(options)
     end
     attributables
   end
 
-  def self.default_options_for(part)
-    if self.respond_to?("default_options_for_#{part}")
-      self.send "default_options_for_#{part}"
+  def self.default_options_for(attribute)
+    if self.respond_to?("default_options_for_#{attribute}")
+      self.send "default_options_for_#{attribute}"
     else
       default_options
     end
@@ -81,11 +83,9 @@ module DeviseAttributable
   # changes on attributes that require the current password). Otherwise +false+.
   # Always returns true if the update params contain a password.
   def self.update_requires_current_password?(resource, update_params=nil)
-    return true if update_params.include?('password') || update_params.include?('password_confirmation')
+    return true if update_params['password'].present?
 
-    params = update_params.except('current_password')
-    params.delete('password')
-    params.delete('password_confirmation')
+    params = update_params.except('password', 'password_confirmation', 'current_password')
 
     # Get all attributes that have changed.
     changed_resource = resource.clone

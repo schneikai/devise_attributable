@@ -143,7 +143,7 @@ In <tt>app/views/devise/sessions/new.html.erb</tt> remove the label and field fo
 
 ```ruby
 <div><%= f.devise_login_label %><br />
-<%= f.devise_login :autofocus => true %></div>
+<%= f.devise_login autofocus: true %></div>
 ```
 
 

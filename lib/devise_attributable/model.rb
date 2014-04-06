@@ -35,28 +35,18 @@ module Devise
         end
       end
 
-
-
-      # We need to overwrite Devise +password_required?+ to make it work with
-      # blank (empty string) passwords that are send via the registrations#edit form.
-      # I don't know why Devise is checking for nil? instead of blank? there anyway!
-      #
-      # TODO: devise_easy_omniauthable is also overwriting "password_required?".
-      # Have to check if this still works then.
-      # def password_required?
-      #   !persisted? || !password.blank? || !password_confirmation.blank?
-      # end
-
-
-
       def attributables
         DeviseAttributable.attributables
       end
 
+      # Returns +true+ if any attribute in +params+ requires the current password
+      # when updated. Otherwise +false+.
       def update_requires_current_password?(params)
         DeviseAttributable.update_requires_current_password?(self, params)
       end
 
+      # Returns +true+ if the given attribute requires the current password when updated.
+      # Otherwise +false+.
       def attributable_update_requires_current_password?(name)
         DeviseAttributable.attributable_update_requires_current_password?(self, name)
       end
