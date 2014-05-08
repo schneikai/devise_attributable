@@ -17,19 +17,35 @@ module DeviseAttributable
         data: { 'update-requires-password' => object.send("#{attribute}_update_requires_current_password?") }
       }.merge(attribute_options[:field])
 
-      # Remove the default values the model is not new.
+      field_options[:input_html] = { data: field_options.delete(:data) } if self.class.name == 'SimpleForm::FormBuilder'
+
+      if self.class.name == 'SimpleForm::FormBuilder'
+        self.input attribute, field_options
+      else
+        self.send(field_type, attribute, field_options)
+      end
+
+      # Remove the default values if the model is not new.
       field_options.delete(:default) unless object.new_record?
       field_options.delete(:checked) unless object.new_record?
 
       field_type = field_options.delete(:type)
 
-      self.send(field_type, attribute, field_options)
+      if self.class.name == 'SimpleForm::FormBuilder'
+        self.input attribute, field_options
+      else
+        self.send(field_type, attribute, field_options)
+      end
     end
 
     # Returns a login field based on what is configured in "Devise.authentication_keys".
     def devise_login(*args)
       options = args.extract_options!
-      self.send(:text_field, devise_authentication_key, *(args << options))
+      if self.class.name == 'SimpleForm::FormBuilder'
+        self.input devise_authentication_key, *(args << options)
+      else
+        self.send(:text_field, devise_authentication_key, *(args << options))
+      end
     end
 
     # Returns the label for the login field.

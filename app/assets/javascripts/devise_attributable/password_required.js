@@ -9,7 +9,7 @@ window.DeviseAttributable || (window.DeviseAttributable = {});
 (function($) {
   DeviseAttributable.PasswordRequired = function(element, options) {
     var that = this;
-    this.element = $(element); // Must be a form element!
+    this.element = $(element); // Must be a form element.
     this.options = $.extend({}, this.defaults, this.element.data(), options);
 
     // Save the initial value of each input element.
@@ -19,14 +19,12 @@ window.DeviseAttributable || (window.DeviseAttributable = {});
     });
 
     // Initially hide the password field unless it has errors.
-    if (!this.currentPasswordHasError()) {
-      this.currentPasswordContainer().hide();
-    }
+    if (!this.currentPasswordHasError()) this.hidePasswordField();
 
     // When the form changes check if any field that was changed requires
     // the current password.
-    this.element.off('change.DeviseAttributablePasswordRequired').on('change.DeviseAttributablePasswordRequired', function() {
-      if (that.isPasswordRequired()) {
+    this.element.off('change.deviseAttributablePasswordRequired').on('change.deviseAttributablePasswordRequired', function() {
+      if (that.isPasswordRequired() || that.currentPasswordHasError()) {
         that.showPasswordField();
       } else {
         that.hidePasswordField();
@@ -81,5 +79,5 @@ window.DeviseAttributable || (window.DeviseAttributable = {});
   };
 
   // Create the plugin.
-  $.plugin('DeviseAttributablePasswordRequired', DeviseAttributable.PasswordRequired);
+  $.plugin('deviseAttributablePasswordRequired', DeviseAttributable.PasswordRequired);
 })(jQuery);
