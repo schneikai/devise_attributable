@@ -21,7 +21,7 @@ module Devise
           # Returns +true+ if the field requires the current password for update.
           # Otherwise +false+.
           define_method "#{name}_update_requires_current_password?" do
-            attributable_update_requires_current_password? name
+            DeviseAttributable.attributable_update_requires_current_password?(self, name)
           end
 
           # Add validators
@@ -43,12 +43,6 @@ module Devise
       # when updated. Otherwise +false+.
       def update_requires_current_password?(params)
         DeviseAttributable.update_requires_current_password?(self, params)
-      end
-
-      # Returns +true+ if the given attribute requires the current password when updated.
-      # Otherwise +false+.
-      def attributable_update_requires_current_password?(name)
-        DeviseAttributable.attributable_update_requires_current_password?(self, name)
       end
 
       module ClassMethods

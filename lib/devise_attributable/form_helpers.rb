@@ -9,29 +9,11 @@ module DeviseAttributable
     def attributable(*args)
       options = args.extract_options!
       attribute = args.shift
-      attribute_options = object.attributables[attribute]
 
-      field_options = {
-        required: attribute_options[:required],
-        # TODO: This is actually just needed for registrations/edit...
-        data: { 'update-requires-password' => object.send("#{attribute}_update_requires_current_password?") }
-      }.merge(attribute_options[:field])
-
-      field_options[:input_html] = { data: field_options.delete(:data) } if self.class.name == 'SimpleForm::FormBuilder'
-
-      if self.class.name == 'SimpleForm::FormBuilder'
-        self.input attribute, field_options
-      else
-        self.send(field_type, attribute, field_options)
-      end
-
-      # Remove the default values if the model is not new.
-      field_options.delete(:default) unless object.new_record?
-      field_options.delete(:checked) unless object.new_record?
-
+      field_options = attributable_options(attribute)
       field_type = field_options.delete(:type)
 
-      if self.class.name == 'SimpleForm::FormBuilder'
+      if simple_form?
         self.input attribute, field_options
       else
         self.send(field_type, attribute, field_options)
@@ -41,7 +23,7 @@ module DeviseAttributable
     # Returns a login field based on what is configured in "Devise.authentication_keys".
     def devise_login(*args)
       options = args.extract_options!
-      if self.class.name == 'SimpleForm::FormBuilder'
+      if simple_form?
         self.input devise_authentication_key, *(args << options)
       else
         self.send(:text_field, devise_authentication_key, *(args << options))
@@ -53,7 +35,7 @@ module DeviseAttributable
       options = args.extract_options!
 
       if devise_authentication_key == :login
-        # Another options would be to create a translation for the virtual attribute
+        # Another option would be to create a translation for the virtual attribute
         # on the model like so:
         #   en: activerecord: attributes: user: login: Username or Email
         label = I18n.t('devise_attributable.authentication_label')
@@ -65,6 +47,28 @@ module DeviseAttributable
     end
 
     private
+      # Returns input field options for the given attribute.
+      def attributable_options(attribute)
+        # Get configured field options from model.
+        options = object.attributables[attribute][:field]
+
+        # Add some more options...
+        options[:data] ||= {}
+        options[:required] = object.send("#{attribute}_required?")
+        options[:data]['update-requires-password'] = object.send("#{attribute}_update_requires_current_password?") unless object.new_record?
+
+        # Remove the default values if the model is not new.
+        unless object.new_record?
+          options.delete(:default)
+          options.delete(:checked)
+        end
+
+        # In SimpleForm data attributes must go under *input_html* key.
+        options[:input_html] = { data: options.delete(:data) } if simple_form?
+
+        options
+      end
+
       # Returns the field used for login.
       def devise_authentication_key
         if DeviseAttributable.authenticate_via_username_or_email?
@@ -72,6 +76,10 @@ module DeviseAttributable
         else
           Devise.authentication_keys.first.to_sym
         end
+      end
+
+      def simple_form?
+        self.class.name == 'SimpleForm::FormBuilder' || self.class.name == 'Hive::FormBuilder'
       end
   end
 end
