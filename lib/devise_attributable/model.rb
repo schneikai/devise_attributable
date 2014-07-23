@@ -46,7 +46,7 @@ module Devise
       end
 
       module ClassMethods
-        def find_first_by_auth_conditions(warden_conditions)
+        def find_first_by_auth_conditions(warden_conditions, opts={})
           if DeviseAttributable.authenticate_via_username_or_email?
             conditions = warden_conditions.dup
             if login = conditions.delete(:login)

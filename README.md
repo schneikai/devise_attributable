@@ -201,6 +201,14 @@ Add or change translations by adding or overwriting these files in your app.
 
 
 ## TODO
+* drop this Gem. implementation is weired with this model configuration
+  in initializer. we basically rebuildung rails functionality there and
+  it wouldn't get much easier because people need to know all configuration
+  options. Instead make it more easy to add new fields. Write a wiki entry
+  for example.
+
+* default values like +checked+ don't make it into the migration.
+  this results in checkboxes not beeing checked in new/create-forms
 * add tests!
 * when authkey :login is specified but :username is not present maybe we should show a little error message?
 * add option to lock the username? (never change, change after 7 days, 3times, ...)
